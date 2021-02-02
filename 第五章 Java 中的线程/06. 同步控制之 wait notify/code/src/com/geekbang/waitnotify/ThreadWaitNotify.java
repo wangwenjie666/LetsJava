@@ -43,13 +43,15 @@ public class ThreadWaitNotify {
         // TODO 人工划重点：先notify，后进入wait，就是所谓的 lost notification问题，可能造成线程无法进行
         // TODO 人工划重点：如果让唤醒的线程 sleep 的比worker短（sleep 时间 +1变-1，或者干脆不sleep），也就是先进行notify，那么就可能会造成这个问题
         // TODO 人工划重点：为什么说可能呢？因为synchronized还是阻碍了notify的执行，但是notify有机会在wait前执行了
-        /**
-         * 线程仅仅有一个获取到了locker锁，然后进入wait，其他线程都没有wait，那么调用notify唤醒是无效的
-         */
-//        sleepSec(workingSec - 1);
-        //在所有线程都
+
+        //线程仅仅有一个获取到了locker锁，然后进入wait，其他线程都没有wait，那么调用notify唤醒是无效的
+        //sleepSec(workingSec - 1);
+
+        //在所有线程都等待后，进行唤醒操作=
         sleepSec(workingSec + 1);
+
         System.out.println("------------- 唤醒线程sleep结束 -------------");
+        //>> TODO Main线程是最后获取到synchronized锁的？.
         synchronized (locker) {
             System.out.println("==>获取到锁的线程：" + getName() + " ==>当前时间：" + new Date());
             // >> TODO notify/notifyAll 方法必须在进入相应对象的synchronized块中才能调用
