@@ -1,5 +1,6 @@
 package com.geekbang.waitnotify;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class ThreadWaitNotify {
@@ -10,10 +11,13 @@ public class ThreadWaitNotify {
         int workingSec = 2;
         int threadCount = 5;
         for (int i = 0; i < threadCount; i++) {
+            //>> TODO 开启5个线程 并start.
             new Thread(() -> {
                 System.out.println(getName() + "：线程开始工作……");
                 try {
                     synchronized (locker) {
+                        System.out.println("==>获取到锁的线程：" + getName() + " ==>当前时间：" + new Date());
+                        //>> TODO 睡2s.
                         sleepSec(workingSec);
                         System.out.println(getName() + "：进入等待");
                         // >> TODO wait 方法必须在进入相应对象的synchronized块中才能调用
@@ -39,19 +43,24 @@ public class ThreadWaitNotify {
         // TODO 人工划重点：先notify，后进入wait，就是所谓的 lost notification问题，可能造成线程无法进行
         // TODO 人工划重点：如果让唤醒的线程 sleep 的比worker短（sleep 时间 +1变-1，或者干脆不sleep），也就是先进行notify，那么就可能会造成这个问题
         // TODO 人工划重点：为什么说可能呢？因为synchronized还是阻碍了notify的执行，但是notify有机会在wait前执行了
-        sleepSec(workingSec - 1);
+        /**
+         * 线程仅仅有一个获取到了locker锁，然后进入wait，其他线程都没有wait，那么调用notify唤醒是无效的
+         */
+//        sleepSec(workingSec - 1);
+        //在所有线程都
+        sleepSec(workingSec + 1);
         System.out.println("------------- 唤醒线程sleep结束 -------------");
         synchronized (locker) {
+            System.out.println("==>获取到锁的线程：" + getName() + " ==>当前时间：" + new Date());
             // >> TODO notify/notifyAll 方法必须在进入相应对象的synchronized块中才能调用
-//            System.out.println("------------- 开始唤醒所有 -------------");
-//            locker.notifyAll();
+            System.out.println("------------- 开始唤醒所有 -------------");
+            locker.notifyAll();
 
-            for (int i = 0; i < threadCount; i++) {
+            /*for (int i = 0; i < threadCount; i++) {
                 System.out.println("------------- 开始逐个唤醒 -------------");
                 locker.notify();
-            }
+            }*/
         }
-
     }
 
     private static void sleepSec(int sec) {
